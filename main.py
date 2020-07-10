@@ -6,17 +6,31 @@ from tinydb import TinyDB, Query
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 # Max 2 Mo les fichiers
 
+db = TinyDB('database/proxmox-class.json')
+
 
 os_equivalent = {
     "1":"CentOs",
     "2":"Debian",
-    "3":"Autre",
-    "4":"",
-    "5":"",
-    "6":"",
-    "7":"",
-    "8":"",
-    "9":"",
+    "3":"Linux-Autre",
+    "4":"WinXP",
+    "5":"Win7",
+    "6":"Win10",
+    "7":"WinSRV2016",
+    "8":"WinSRV2019",
+    "9":"Win-Autre",
+}
+
+classe_equivalent = {
+    "1":"Ing1",
+    "2":"Ing2",
+    "3":"IR3",
+    "4":"IR4",
+    "5":"IR5",
+    "6":"Bachelor",
+    "7":"M1",
+    "8":"M2",
+    "9":"Autre",
 }
 
 ALLOWED_EXTENSIONS = {'csv'}
@@ -59,11 +73,27 @@ def upload_csv():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)   # remove directory traversing, encoded caracters, space etc
 
-        print(file.read().decode())
-
     os = request.form['os']
 
+
     #Do Upload csv to db + clone VM
+
+    file2 = file
+
+    reader = csv.DictReader(file.read().decode().splitlines(), fieldnames=["firstname", "lastname", "email", "classe"], delimiter=";")
+
+    print(ligne := str([ligne for num_ligne,ligne in enumerate(reader) if num_ligne == 1][0]["classe"]))
+
+    print(f"classe-{classe_equivalent[ligne]}-os-{os_equivalent[os]}".lower())
+
+    table_promo = db.table("test")
+
+    reader = csv.DictReader(file2.read().decode().splitlines(), fieldnames=["firstname", "lastname", "email", "classe"], delimiter=";")
+
+    for rowrow in reader:
+        print(rowrow)
+        table_promo.insert(dict(rowrow))
+    table_promo.all()
 
 
 
