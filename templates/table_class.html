@@ -15,7 +15,7 @@
         </div>
         <thead>
             <tr>
-                <th><abbr title="Position">Pos</abbr></th>
+                <!-- <th><abbr title="Position">Pos</abbr></th> -->
                 <th>Classe</th>
                 <th>OS</th>
                 <th>Ajoutée le</th>
@@ -23,30 +23,21 @@
             </tr>
         </thead>
         <tbody class="classTable">
-            <tr>
-                <th>1</th>
-                <td>IR4</td>
-                <td>CentOS</td>
-                <td>10/07/2020</td>
-                <td>
-                    <div class="buttons">
-                        <button class="button  is-info">Détails</button>
-                        <button class="button  is-danger">Supprimer</button>
-                      </div>
-                </td>
-            </tr>
 
-            <tr>
-                <th>2</th>
-                <td>IR5</td>
-                <td>Kali</td>
-                <td>10/06/2020</td>
-                <td>
+        {%for classe in liste_classes %}
+        <tr>
+            <!-- <th>{{loop.index}}</th> -->
+            <td>{{classe['classe']}}</td>
+            <td>{{classe['os']}}</td>
+            <td>{{classe['date_crea']}}</td>
+            <td>
                     <div class="buttons">
-                        <button class="button  is-info">Détails</button>
-                        <button class="button  is-danger">Supprimer</button>
+                        <button class="button is-info">Détails</button>
+                        <button class="button is-danger">Supprimer</button>
                       </div>
                 </td>
-            </tr>
+
+        </tr>
+        {%endfor%}
         </tbody>
 </table>

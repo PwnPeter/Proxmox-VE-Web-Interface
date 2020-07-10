@@ -52,9 +52,11 @@ $("#upload-file").click(function(){
    
     var fd = new FormData();
     var files = $('.file-input')[0].files[0];
-    var os = $(".select-os").children("option:selected").val().toString()
+    var class_e = $(".select-class").children("option:selected").val().toString();
+    var os = $(".select-os").children("option:selected").val().toString();
     fd.append('file',files);
     fd.append('os', os);
+    fd.append('class', class_e);
     
 
     $.ajax({
@@ -65,11 +67,17 @@ $("#upload-file").click(function(){
         processData: false,
         statusCode: {
             201 : function(response){
-            console.log(response)
+                classe_added = response["classe"]
+                date_added = response["date_crea"]
+                os_added = response["os"]
            
                 $('#upload-file').removeClass('is-loading')
 
                 $("#notif").append(generate_notif('VM created', 'is-success'))
+
+                var new_row = `<tr><td>${classe_added}</td><td>${os_added}</td><td>${date_added}</td><td><div class="buttons"><button class="button is-info">Détails</button><button class="button is-danger">Supprimer</button></div></td></tr>`;
+                $("table tbody").append(new_row);
+
         },
             404 : function(response) {
                 $('#upload-file').removeClass('is-loading')
