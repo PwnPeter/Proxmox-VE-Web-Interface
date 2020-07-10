@@ -1,9 +1,20 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, Response
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 # Max 2 Mo les fichiers
 
+os_equivalent = {
+    "1":"CentOs",
+    "2":"Debian",
+    "3":"Autre",
+    "4":"",
+    "5":"",
+    "6":"",
+    "7":"",
+    "8":"",
+    "9":"",
+}
 
 ALLOWED_EXTENSIONS = {'csv'}
 
@@ -28,9 +39,11 @@ def upload_csv():
     """récupère le csv et les choix de génération des VM (classe + os)"""
     
     # check if the post request has the file part
-    if 'file' not in request.files:
+
+    print(request.files)
+    if 'file' not in request.files:# or 'os' not in request.files:
         print(1)
-        return 404
+        return Response(status=404)
         
     file = request.files['file']
 
@@ -40,7 +53,7 @@ def upload_csv():
     print(file.filename)
     if file.filename == '':
         print(2)
-        return 404
+        return Response(status=404)
 
 
     if file and allowed_file(file.filename):
@@ -48,7 +61,8 @@ def upload_csv():
 
         print(file.read().decode())
 
-    return 200
+
+    return Response(status=200)
 
 @app.route('/delete', methods=['PUT'])
 def delete_class():
