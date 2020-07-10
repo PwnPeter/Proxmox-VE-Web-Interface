@@ -42,8 +42,9 @@ $("#upload-file").click(function(){
 
     var fd = new FormData();
     var files = $('.file-input')[0].files[0];
+    var os = $(".select-os").children("option:selected").val().toString()
     fd.append('file',files);
-    fd.append('os', $(".select-os").children("option:selected").val().toString());
+    fd.append('os', os);
     
 
     $.ajax({
