@@ -38,9 +38,13 @@
 
 $("#upload-file").click(function(){
 
+    $('#upload-file').addClass('is-loading')
+
     var fd = new FormData();
     var files = $('.file-input')[0].files[0];
     fd.append('file',files);
+    fd.append('os', $(".select-os").children("option:selected").val().toString());
+    
 
     $.ajax({
         url: '/upload',
@@ -50,7 +54,10 @@ $("#upload-file").click(function(){
         processData: false,
         success: function(response){
             if(response == 200){
-                alert("ok")
+                $('#upload-file').removeClass('is-loading')
+                html_notif = '<p class="notification is-dark" role="alert"><strong>AUTO PLAY :</strong><br>' + notif_message + '<button class="delete" type="button">Close</button></p>'
+                $("#notif").append(html_notif)
+
             }else{
                 alert('file not uploaded');
             }
