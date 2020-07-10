@@ -136,6 +136,7 @@ def upload_csv():
     for rowrow in reader:
         rowrow = dict(rowrow)
         rowrow["date"] = str(datetime.now())
+        rowrow["classe"] = classe
         table_promo.insert(rowrow)
 
     return jsonify({
@@ -148,7 +149,10 @@ def upload_csv():
 @app.route("/delete", methods=["PUT"])
 def delete_class():
     """récupère la classe et l'os et supprime les VM"""
-    return "cc"
+    content = request.json
+    print(content)
+    db.drop_table(f"classe-{content['classe']}-os-{content['os']}".lower())
+    return "", 201
 
 
 app.run(debug=True, port=8080)

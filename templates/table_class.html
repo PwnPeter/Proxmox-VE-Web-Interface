@@ -1,7 +1,7 @@
 <h3 class="title is-3" style="text-align: center;">Liste</h3>
 
 
-<table class="table" style="margin: auto;">
+<table class="table" id="table-class" style="margin: auto;">
     <div class="columns is-centered">
         <div class="column is-4">
             <div class="field">
@@ -27,13 +27,13 @@
         {%for classe in liste_classes %}
         <tr>
             <!-- <th>{{loop.index}}</th> -->
-            <td>{{classe['classe']}}</td>
-            <td>{{classe['os']}}</td>
-            <td>{{classe['date_crea']}}</td>
+            <td class="row-class-{{loop.index}}" value="row-class-{{loop.index}}">{{classe['classe']}}</td>
+            <td class="row-os-{{loop.index}}" value="row-os-{{loop.index}}">{{classe['os']}}</td>
+            <td class="row-date-{{loop.index}}" value="row-date-{{loop.index}}">{{classe['date_crea']}}</td>
             <td>
                     <div class="buttons">
-                        <button class="button is-info">Détails</button>
-                        <button class="button is-danger">Supprimer</button>
+                        <button class="button is-info details-row">Détails</button>
+                        <button class="button is-danger delete-row">Supprimer</button>
                       </div>
                 </td>
 
