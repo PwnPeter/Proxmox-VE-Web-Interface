@@ -1,8 +1,11 @@
 from flask import Flask, jsonify, render_template, request, Response
 from werkzeug.utils import secure_filename
+import csv
+from tinydb import TinyDB, Query
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 # Max 2 Mo les fichiers
+
 
 os_equivalent = {
     "1":"CentOs",
@@ -40,9 +43,7 @@ def upload_csv():
     
     # check if the post request has the file part
 
-    print(request.files)
-    if 'file' not in request.files:# or 'os' not in request.files:
-        print(1)
+    if 'file' not in request.files or 'os' not in request.form:
         return Response(status=404)
         
     file = request.files['file']
@@ -52,7 +53,6 @@ def upload_csv():
 
     print(file.filename)
     if file.filename == '':
-        print(2)
         return Response(status=404)
 
 
@@ -60,6 +60,11 @@ def upload_csv():
         filename = secure_filename(file.filename)   # remove directory traversing, encoded caracters, space etc
 
         print(file.read().decode())
+
+    os = request.form['os']
+
+    #Do Upload csv to db + clone VM
+
 
 
     return Response(status=200)
