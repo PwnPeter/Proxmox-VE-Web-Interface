@@ -21,3 +21,41 @@
         });
     });
 </script>
+
+<script>
+    $(document).ready(function(){
+      $("#searchbar-tab").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $(".classTable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+    </script>
+
+<script>
+    $(document).ready(function(){
+
+$("#upload-file").click(function(){
+
+    var fd = new FormData();
+    var files = $('.file-input')[0].files[0];
+    fd.append('file',files);
+
+    $.ajax({
+        url: '/upload',
+        type: 'post',
+        data: fd,
+        contentType: false,
+        processData: false,
+        success: function(response){
+            if(response == 200){
+                alert("ok")
+            }else{
+                alert('file not uploaded');
+            }
+        },
+    });
+});
+});
+</script>
