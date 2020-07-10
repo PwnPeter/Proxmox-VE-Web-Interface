@@ -7,7 +7,12 @@
 </footer>
 
 <script src="/static//js/jquery-3.5.1.js"></script>
-
+<script>
+    $(document).on('click', '.notification > button.delete', function () {
+        $(this).parent().addClass('is-hidden');
+        return false;
+    });
+</script>
 <script>
     $(document).ready(function () {
 
@@ -36,10 +41,15 @@
 <script>
     $(document).ready(function(){
 
+        function generate_notif(message, couleur){
+            return `<p class="notification ${couleur}" role="alert"><strong>${message}</strong><br><button class="delete" type="button">Close</button></p>`
+        }
+
+
 $("#upload-file").click(function(){
 
     $('#upload-file').addClass('is-loading')
-
+   
     var fd = new FormData();
     var files = $('.file-input')[0].files[0];
     var os = $(".select-os").children("option:selected").val().toString()
@@ -53,16 +63,26 @@ $("#upload-file").click(function(){
         data: fd,
         contentType: false,
         processData: false,
-        success: function(response){
-            if(response == 200){
+        statusCode: {
+            201 : function(response){
+            console.log(response)
+           
                 $('#upload-file').removeClass('is-loading')
-                html_notif = '<p class="notification is-dark" role="alert"><strong>AUTO PLAY :</strong><br>' + notif_message + '<button class="delete" type="button">Close</button></p>'
-                $("#notif").append(html_notif)
 
-            }else{
-                alert('file not uploaded');
-            }
+                $("#notif").append(generate_notif('VM created', 'is-success'))
         },
+            404 : function(response) {
+                $('#upload-file').removeClass('is-loading')
+
+                $("#notif").append(generate_notif('Error 404, retry', 'is-warning'))
+            },
+            409 : function(response) {
+                $('#upload-file').removeClass('is-loading')
+
+                $("#notif").append(generate_notif('Error 409, VM for this OS and this class already exist, please delete them before', 'is-danger'))
+            }
+        }
+
     });
 });
 });

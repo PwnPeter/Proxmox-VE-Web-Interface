@@ -6,7 +6,7 @@ from tinydb import TinyDB, Query
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 # Max 2 Mo les fichiers
 
-db = TinyDB('database/proxmox-class.json')
+db = TinyDB('database/proxmox-class.json', sort_keys=True, indent=3)
 
 
 os_equivalent = {
@@ -42,7 +42,12 @@ def allowed_file(filename):
 @app.route('/', methods=['GET'])
 def index():
     """page d'accueil du site"""
-    return render_template("index.html")
+
+    for i in db.tables():
+        print(db.table(i).all())
+
+
+    return render_template("index.html", )
 
 
 @app.route('/dashboard', methods=['GET'])
@@ -58,6 +63,7 @@ def upload_csv():
     # check if the post request has the file part
 
     if 'file' not in request.files or 'os' not in request.form:
+        print("pas de file ou de numero")
         return Response(status=404)
         
     file = request.files['file']
@@ -67,6 +73,8 @@ def upload_csv():
 
     print(file.filename)
     if file.filename == '':
+        print("non du fichier vide")
+
         return Response(status=404)
 
 
@@ -78,26 +86,33 @@ def upload_csv():
 
     #Do Upload csv to db + clone VM
 
-    file2 = file
+    csv_file_string = file.read().decode()
 
-    reader = csv.DictReader(file.read().decode().splitlines(), fieldnames=["firstname", "lastname", "email", "classe"], delimiter=";")
+    
+    reader = csv.DictReader(csv_file_string.splitlines(), fieldnames=["firstname", "lastname", "email", "classe"], delimiter=";")
 
-    print(ligne := str([ligne for num_ligne,ligne in enumerate(reader) if num_ligne == 1][0]["classe"]))
+    #print(ligne := str([ligne for num_ligne, ligne in enumerate(reader) if num_ligne == 1][0]["classe"]))
 
-    print(f"classe-{classe_equivalent[ligne]}-os-{os_equivalent[os]}".lower())
+    for num_ligne, ligne in enumerate(reader):
+        if num_ligne == 1:
+            classe = ligne["classe"]
 
-    table_promo = db.table("test")
+    print(nom_table := f"classe-{classe_equivalent[classe]}-os-{os_equivalent[os]}".lower())
 
-    reader = csv.DictReader(file2.read().decode().splitlines(), fieldnames=["firstname", "lastname", "email", "classe"], delimiter=";")
+    if nom_table in db.tables():
+        return Response(status=409)
+
+    table_promo = db.table(nom_table)
+
+    reader = csv.DictReader(csv_file_string.splitlines(), fieldnames=["firstname", "lastname", "email", "classe"], delimiter=";")
+
 
     for rowrow in reader:
-        print(rowrow)
         table_promo.insert(dict(rowrow))
-    table_promo.all()
+    
 
 
-
-    return Response(status=200)
+    return Response(status=201)
 
 @app.route('/delete', methods=['PUT'])
 def delete_class():
