@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta id="meta-viewport" name="viewport" content="width=device-width, initial-scale=1">
+    <title>Proxmox VE Web</title>
+    <link rel="stylesheet" href="/static/css/bulma.css">
+
+    <link rel="stylesheet" href="/static/css/Notifications.css">
+    <link rel="icon" type="image/png" href="/static/img/esaip_logo.png" />
+    <script defer src="/static/js/all.js"></script>
+    <!--font awesome icons -->
+</head>
+<nav class="navbar is-spaced has-shadow" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            <img src="/static/img/esaip_logo.png">
+        </a>
+        <div class="navbar-item is-hidden-desktop navbar-center">
+            <span class="icon">
+                <i class="fas fa-user-ninja"></i>
+            </span>
+            <span class="pseudo"><strong>{{pseudo |upper }}</strong></span>
+
+        </div>
+        <div class="navbar-item is-hidden-desktop navbar-center">
+            <span class="icon ip-icon"
+                style="color: {% if IS_PROXYFIED is sameas true %} #209cee {% else %} #ff3860 {% endif %}">
+                <i class="fas fa-server"></i>
+            </span>
+            <span class="ip"><strong>{{ACTUAL_IP}}</strong></span>
+        </div>
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="true"
+            data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <div id="navbarpages" class="navbar-menu">
+        <div class="navbar-start">
+            <a href="/" class="navbar-item">
+
+                <span class="icon has-text-info">
+                    <i class="fas fa-home"></i> </span>
+                <span>Accueil</span>
+            </a>
+            <a href="/dashboard" class="navbar-item">
+                <span class="icon has-text-success">
+                    <i class="fas fa-graduation-cap"></i> </span>
+                <span>Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="navbar-end">
+        <div class="navbar-item is-hidden-touch">
+            <span class="icon">
+                <i class="fas fa-user-ninja"></i>
+            </span>
+            <span><strong>{{pseudo |upper }}</strong></span>
+        </div>
+        <div class="navbar-item is-hidden-touch">
+            <span class="icon ip-icon"
+                style="color: {% if IS_PROXYFIED is sameas true %} #209cee {% else %} #ff3860 {% endif %}">
+                <i class="fas fa-server"></i>
+            </span>
+            <span>{{ACTUAL_IP}}</span>
+        </div>
+
+    </div>
+
+
+</nav>
