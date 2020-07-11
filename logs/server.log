@@ -1,4 +1,79 @@
-2020-07-11 05:26:21,552 - INFO -  * Running on http://127.0.0.1:8080/ (Press CTRL+C to quit) - line 113
-2020-07-11 05:26:21,553 - INFO -  * Restarting with stat - line 113
-2020-07-11 05:26:21,896 - WARNING -  * Debugger is active! - line 113
-2020-07-11 05:26:21,897 - INFO -  * Debugger PIN: 489-388-295 - line 113
+2020-07-11 05:37:32,393 - INFO - 127.0.0.1 - - [11/Jul/2020 05:37:32] "[37mGET / HTTP/1.1[0m" 200 - - line 113
+2020-07-11 05:37:32,563 - INFO - 127.0.0.1 - - [11/Jul/2020 05:37:32] "[37mGET /static/css/bulma.css HTTP/1.1[0m" 200 - - line 113
+2020-07-11 05:37:32,663 - INFO - 127.0.0.1 - - [11/Jul/2020 05:37:32] "[37mGET /static/css/Notifications.css HTTP/1.1[0m" 200 - - line 113
+2020-07-11 05:37:32,666 - INFO - 127.0.0.1 - - [11/Jul/2020 05:37:32] "[32mGET /static//js/jquery-3.5.1.js HTTP/1.1[0m" 308 - - line 113
+2020-07-11 05:37:32,704 - INFO - 127.0.0.1 - - [11/Jul/2020 05:37:32] "[37mGET /static/js/all.js HTTP/1.1[0m" 200 - - line 113
+2020-07-11 05:37:32,717 - INFO - 127.0.0.1 - - [11/Jul/2020 05:37:32] "[37mGET /static/img/esaip_logo.png HTTP/1.1[0m" 200 - - line 113
+2020-07-11 05:37:33,113 - INFO - 127.0.0.1 - - [11/Jul/2020 05:37:33] "[37mGET /static/js/jquery-3.5.1.js HTTP/1.1[0m" 200 - - line 113
+2020-07-11 05:37:33,393 - INFO - 127.0.0.1 - - [11/Jul/2020 05:37:33] "[37mGET /static/img/esaip_logo.png HTTP/1.1[0m" 200 - - line 113
+2020-07-11 05:37:42,864 - INFO - Table classe-ir4-os-centos created - line 476
+2020-07-11 05:37:42,897 - INFO - Table classe-ir4-os-centos created and datas inserted - line 495
+2020-07-11 05:37:43,484 - INFO - {'data': {'username': 'projet1@pve', 'CSRFPreventionToken': '5F0933A4:6s6frqwDWUEytEq+7TijNC7Q0Vk', 'clustername': 'Cluster', 'ticket': 'PVE:projet1@pve:5F0933A4::LdmLuT5mvAnVmoCCMyPvdfLJ1bBFOyb4zWL1FX2e0yDVWPuY7oWwyKKH5EPja2wKN16V2kIvzZAmGDpgevbANxtzF3UGkEEPZdDVElno6m/C4OyD4nlmQq4+cYRQh7PUhZea7Jo0nqRnnZFRZC/o2Yi4bJqjMQ0bxFamR8BZetCfL4PN2Cib9AGBOvXrkeAFCU98N24dNEldiRUuPLl/2RHRaEnpWAhHpeyjWdT2d2CxF6cLXRQ9ilDXBO/RKm7chDpz1ZyNCoNxnVQPbsII9RiFMVtvLARndqjefCJ1ENmJKRVs58h16zhcNaQKd1rA6CRkG88ydBP2fDdauMi4hw==', 'cap': {'nodes': {'Sys.Console': 1, 'Sys.Audit': 1, 'Sys.Modify': 1, 'Permissions.Modify': 1, 'Sys.PowerMgmt': 1, 'Sys.Syslog': 1}, 'vms': {'VM.Config.CDROM': 1, 'VM.Allocate': 1, 'VM.Config.HWType': 1, 'VM.Snapshot': 1, 'VM.Config.CPU': 1, 'Permissions.Modify': 1, 'VM.Config.Memory': 1, 'VM.Snapshot.Rollback': 1, 'VM.Monitor': 1, 'VM.PowerMgmt': 1, 'VM.Config.Options': 1, 'VM.Console': 1, 'VM.Backup': 1, 'VM.Migrate': 1, 'VM.Clone': 1, 'VM.Audit': 1, 'VM.Config.Network': 1, 'VM.Config.Disk': 1}, 'access': {'Permissions.Modify': 1, 'User.Modify': 1, 'Group.Allocate': 1}, 'storage': {'Datastore.AllocateSpace': 1, 'Permissions.Modify': 1, 'Datastore.AllocateTemplate': 1, 'Datastore.Allocate': 1, 'Datastore.Audit': 1}, 'dc': {'Sys.Audit': 1}}}} - line 99
+2020-07-11 05:37:44,099 - INFO - Starting the VM clone classe-ir4-os-centos for rbilleaud.ing2020@esaip.org VM: 41001 - line 137
+2020-07-11 05:37:44,601 - INFO - Starting the VM clone classe-ir4-os-centos for sdanchaud.ing2020@esaip.org VM: 41002 - line 137
+2020-07-11 05:37:45,103 - INFO - Starting the VM clone classe-ir4-os-centos for sdelajoux.ing2020@esaip.org VM: 41003 - line 137
+2020-07-11 05:37:45,606 - INFO - Starting the VM clone classe-ir4-os-centos for shachim.ing2020@esaip.org VM: 41004 - line 137
+2020-07-11 05:37:45,726 - WARNING - CentOS-shachim.ing2020 already exsits - line 155
+2020-07-11 05:37:46,109 - INFO - Starting the VM clone classe-ir4-os-centos for mrichomme.ing2020@esaip.org VM: 41005 - line 137
+2020-07-11 05:37:46,226 - WARNING - CentOS-mrichomme.ing2020 already exsits - line 155
+2020-07-11 05:38:30,359 - INFO -  * Detected change in '/home/peterpan/Projects/proxmox-ve-web/Proxmox-VE-Web-Interface/main.py', reloading - line 113
+2020-07-11 05:38:30,429 - INFO -  * Restarting with stat - line 113
+2020-07-11 05:38:30,859 - WARNING -  * Debugger is active! - line 113
+2020-07-11 05:38:30,860 - INFO -  * Debugger PIN: 489-388-295 - line 113
+2020-07-11 05:38:45,030 - INFO -  * Detected change in '/home/peterpan/Projects/proxmox-ve-web/Proxmox-VE-Web-Interface/main.py', reloading - line 113
+2020-07-11 05:38:45,131 - INFO -  * Restarting with stat - line 113
+2020-07-11 05:38:45,579 - WARNING -  * Debugger is active! - line 113
+2020-07-11 05:38:45,580 - INFO -  * Debugger PIN: 489-388-295 - line 113
+2020-07-11 05:42:15,924 - INFO - 127.0.0.1 - - [11/Jul/2020 05:42:15] "[37mGET / HTTP/1.1[0m" 200 - - line 113
+2020-07-11 05:42:16,424 - INFO - 127.0.0.1 - - [11/Jul/2020 05:42:16] "[37mGET /static/img/esaip_logo.png HTTP/1.1[0m" 200 - - line 113
+2020-07-11 05:42:18,323 - INFO - {'data': {'cap': {'vms': {'VM.Config.Options': 1, 'VM.Console': 1, 'VM.PowerMgmt': 1, 'VM.Monitor': 1, 'VM.Config.CPU': 1, 'Permissions.Modify': 1, 'VM.Snapshot.Rollback': 1, 'VM.Config.Memory': 1, 'VM.Config.HWType': 1, 'VM.Snapshot': 1, 'VM.Config.CDROM': 1, 'VM.Allocate': 1, 'VM.Config.Disk': 1, 'VM.Config.Network': 1, 'VM.Audit': 1, 'VM.Migrate': 1, 'VM.Clone': 1, 'VM.Backup': 1}, 'access': {'Permissions.Modify': 1, 'User.Modify': 1, 'Group.Allocate': 1}, 'nodes': {'Sys.PowerMgmt': 1, 'Permissions.Modify': 1, 'Sys.Syslog': 1, 'Sys.Modify': 1, 'Sys.Console': 1, 'Sys.Audit': 1}, 'dc': {'Sys.Audit': 1}, 'storage': {'Datastore.Audit': 1, 'Datastore.Allocate': 1, 'Datastore.AllocateTemplate': 1, 'Permissions.Modify': 1, 'Datastore.AllocateSpace': 1}}, 'clustername': 'Cluster', 'ticket': 'PVE:projet1@pve:5F0934B7::aa02aQIf/W+cVDJReoq6n/rbqcjXAqwsJbVziAZQ1qu5AoHiSN9mp0Bg7TchGogYOWABm+U2kKo2fLxFpRwWJBsodgJ2nDlXxP6X0mUl5awgdnDF6uygZUeh66Nz6MtjEszyQGZzJPrsjMw4wjroedW4P71kM6OMM3vvYe08JO42n3vFGgOytIbPL+eicmya3BrFNzx8B2kGs1AeVe1hzLu6ZNRlVqQdhMQOO5Hcc4xCcfwpDHis/R6GDZzS+JNbpiu+6aiKs9wYEpfoNtaMzqXaivaCOvgYbblmtW9oXpKktFVweL8M3Gi0K23jFZp75WERtxWn2RMdxTdWeJ5++A==', 'CSRFPreventionToken': '5F0934B7:saNVd7kNsmSImcGcBNjoZQ7L440', 'username': 'projet1@pve'}} - line 99
+2020-07-11 05:42:18,325 - INFO - Starting VM removal 41001 of rbilleaud.ing2020@esaip.org - line 270
+2020-07-11 05:42:18,827 - INFO - Starting VM removal 41002 of sdanchaud.ing2020@esaip.org - line 270
+2020-07-11 05:42:19,329 - INFO - Starting VM removal 41003 of sdelajoux.ing2020@esaip.org - line 270
+2020-07-11 05:42:19,832 - INFO - Starting VM removal 41004 of shachim.ing2020@esaip.org - line 270
+2020-07-11 05:42:20,334 - INFO - Starting VM removal 41005 of mrichomme.ing2020@esaip.org - line 270
+2020-07-11 05:42:31,689 - INFO - VM 41003 stopped - line 309
+2020-07-11 05:42:31,726 - INFO - VM 41005 stopped - line 309
+2020-07-11 05:42:31,854 - INFO - VM 41001 stopped - line 309
+2020-07-11 05:42:31,971 - INFO - VM: 41003, User: sdelajoux.ing2020@esaip.org deleted - line 324
+2020-07-11 05:42:31,992 - INFO - VM: 41005, User: mrichomme.ing2020@esaip.org deleted - line 324
+2020-07-11 05:42:32,113 - INFO - VM: 41001, User: rbilleaud.ing2020@esaip.org deleted - line 324
+2020-07-11 05:42:32,229 - INFO - VM 41004 stopped - line 309
+2020-07-11 05:42:32,353 - INFO - VM 41002 stopped - line 309
+2020-07-11 05:42:32,628 - INFO - VM: 41002, User: sdanchaud.ing2020@esaip.org deleted - line 324
+2020-07-11 05:42:52,649 - ERROR - VM: 41004, User: shachim.ing2020@esaip.org not deleted - line 332
+2020-07-11 05:42:52,650 - INFO - Threads delete finished - line 369
+2020-07-11 05:42:52,665 - INFO - Table classe-ir4-os-centos dropped - line 517
+2020-07-11 05:42:52,667 - INFO - 127.0.0.1 - - [11/Jul/2020 05:42:52] "[37mPUT /delete HTTP/1.1[0m" 201 - - line 113
+2020-07-11 05:45:17,985 - INFO -  * Detected change in '/home/peterpan/Projects/proxmox-ve-web/Proxmox-VE-Web-Interface/main.py', reloading - line 113
+2020-07-11 05:45:18,077 - INFO -  * Restarting with stat - line 113
+2020-07-11 05:45:18,473 - WARNING -  * Debugger is active! - line 113
+2020-07-11 05:45:18,474 - INFO -  * Debugger PIN: 489-388-295 - line 113
+2020-07-11 13:53:48,421 - INFO -  * Running on http://127.0.0.1:8080/ (Press CTRL+C to quit) - line 113
+2020-07-11 13:53:48,423 - INFO -  * Restarting with stat - line 113
+2020-07-11 13:53:48,833 - WARNING -  * Debugger is active! - line 113
+2020-07-11 13:53:48,836 - INFO -  * Debugger PIN: 655-359-048 - line 113
+2020-07-11 13:53:51,776 - INFO - 127.0.0.1 - - [11/Jul/2020 13:53:51] "[31m[1mGET / HTTP/1.1[0m" 401 - - line 113
+2020-07-11 13:53:53,261 - INFO - 127.0.0.1 - - [11/Jul/2020 13:53:53] "[37mGET / HTTP/1.1[0m" 200 - - line 113
+2020-07-11 13:53:53,813 - INFO - 127.0.0.1 - - [11/Jul/2020 13:53:53] "[37mGET /static/img/esaip_logo.png HTTP/1.1[0m" 200 - - line 113
+2020-07-11 13:58:02,120 - INFO -  * Detected change in '/home/peterpan/Projects/proxmox-ve-web/Proxmox-VE-Web-Interface/main.py', reloading - line 113
+2020-07-11 13:58:02,161 - INFO -  * Restarting with stat - line 113
+2020-07-11 14:07:17,430 - INFO - [11/Jul/2020:14:07:17] ENGINE Bus STARTING - line 213
+2020-07-11 14:07:26,424 - INFO - [11/Jul/2020:14:07:26] ENGINE Serving on https://:::8080 - line 213
+2020-07-11 14:07:26,425 - INFO - [11/Jul/2020:14:07:26] ENGINE Bus STARTED - line 213
+2020-07-11 14:10:43,605 - INFO - [11/Jul/2020:14:10:43] ENGINE Bus STOPPING - line 213
+2020-07-11 14:10:43,708 - INFO - [11/Jul/2020:14:10:43] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('::', 8080)) shut down - line 213
+2020-07-11 14:10:43,709 - INFO - [11/Jul/2020:14:10:43] ENGINE Bus STOPPED - line 213
+2020-07-11 14:10:43,709 - INFO - [11/Jul/2020:14:10:43] ENGINE Bus EXITING - line 213
+2020-07-11 14:10:43,710 - INFO - [11/Jul/2020:14:10:43] ENGINE Bus EXITED - line 213
+2020-07-11 14:11:13,883 - INFO - [11/Jul/2020:14:11:13] ENGINE Bus STARTING - line 213
+2020-07-11 14:11:13,996 - INFO - [11/Jul/2020:14:11:13] ENGINE Serving on https://0.0.0.0:8080 - line 213
+2020-07-11 14:11:13,997 - INFO - [11/Jul/2020:14:11:13] ENGINE Bus STARTED - line 213
+2020-07-11 14:22:05,856 - INFO - [11/Jul/2020:14:22:05] ENGINE Bus STOPPING - line 213
+2020-07-11 14:22:05,860 - INFO - [11/Jul/2020:14:22:05] ENGINE HTTP Server cherrypy._cpwsgi_server.CPWSGIServer(('0.0.0.0', 8080)) shut down - line 213
+2020-07-11 14:22:05,860 - INFO - [11/Jul/2020:14:22:05] ENGINE Bus STOPPED - line 213
+2020-07-11 14:22:05,860 - INFO - [11/Jul/2020:14:22:05] ENGINE Bus EXITING - line 213
+2020-07-11 14:22:05,860 - INFO - [11/Jul/2020:14:22:05] ENGINE Bus EXITED - line 213
+2020-07-11 14:22:30,055 - INFO - [11/Jul/2020:14:22:30] ENGINE Bus STARTING - line 213
+2020-07-11 14:22:30,168 - INFO - [11/Jul/2020:14:22:30] ENGINE Serving on https://0.0.0.0:8080 - line 213
+2020-07-11 14:22:30,168 - INFO - [11/Jul/2020:14:22:30] ENGINE Bus STARTED - line 213

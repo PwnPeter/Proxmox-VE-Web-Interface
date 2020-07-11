@@ -13,6 +13,10 @@ from flask_basicauth import BasicAuth
 from tinydb import Query, TinyDB, where
 from werkzeug.utils import secure_filename
 
+import cherrypy as cp
+from cheroot.wsgi import Server as CherryPyWSGIServer
+from cherrypy.process.servers import ServerAdapter
+
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # Max 2 Mo les fichiers
 app.config["FLASK_SECRET"] = "jksfd$*^^$*ù!fsfshjkhfgks"
@@ -65,6 +69,22 @@ ALLOWED_EXTENSIONS = {"csv"}
 ############################################################################
 ############################################################################
 
+def run_in_cp_tree(app, HOST="0.0.0.0", PORT=8080):
+    cp.tree.graft(app, '')
+    server_config = {
+        'server.socket_host': HOST,
+        'server.socket_port': PORT,
+        'engine.autoreload.on': False,
+        'server.ssl_module':'builtin',
+        'server.ssl_certificate':'tls/server.cert',
+        'server.ssl_private_key':'tls/server.key',
+        # 'server.ssl_certificate_chain':'/home/debian/ssl/ca_bundle.crt'
+
+
+    }
+
+    cp.config.update(server_config)
+    cp.engine.start()
 
 def setup_logger():
     # Prints logger info to terminal
@@ -523,4 +543,7 @@ if __name__ == "__main__":
     username = "projet1@pve"
     password = "EsFJZ2409GYX@ip"
     logger = setup_logger()
-    app.run(debug=True, port=8080)
+
+    run_in_cp_tree(app,)
+
+    # app.run(debug=True, port=8080)
