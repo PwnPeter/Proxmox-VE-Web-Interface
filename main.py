@@ -6,6 +6,7 @@ from datetime import datetime
 import requests
 import json
 import time
+from random import randint
 import asyncio
 from threading import Thread
 
@@ -112,7 +113,7 @@ def get_vm_status(ticket, csrftoken, node, id_vm):
             break
         except:
             continue
-    return response_prox.json()
+    return response_prox
 
 def request_clone_vm(ticket, csrftoken, student, vm_name, storage, nom_table, node, clone_os):
     while 1:
@@ -125,35 +126,61 @@ def request_clone_vm(ticket, csrftoken, student, vm_name, storage, nom_table, no
                     headers={"CSRFPreventionToken": csrftoken},
                 )
 
-            break
+            print(response_prox.status_code)
+
+            if response_prox.status_code == 200:
+                break
+            elif response_prox.status_code == 500:
+                print(f"{vm_name} already exsits")
+                break
+            else:
+                print(f"restart clone {vm_name} {response_prox.status_code} {response_prox.text}")
+                time.sleep(randint(5, 15))
+                continue
         except:
-            time.sleep(10)
+            time.sleep(randint(5, 15))
             continue
 
 
-    if response_prox.status_code == 200:
+    if response_prox.status_code == 200 or response_prox.status_code == 500:
         table_db = db.table(nom_table)
 
         response_name = ""
 
-        while get_vm_status(ticket, csrftoken, node, student["id_vm"])["data"]["name"] != vm_name:
-            time.sleep(10)
+        is_cloned = ""
+        while is_cloned != vm_name:
+            is_cloned = get_vm_status(ticket, csrftoken, node, student["id_vm"])
+            print(is_cloned.status_code)
+            print(is_cloned.text)
+            is_cloned = is_cloned.json()["data"]["name"]
+            time.sleep(randint(5, 15))
 
-        table_db.update({"is_cloned": True}, where('id_vm') == student['id_vm'])
         print(f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} cloned")
 
+        print("--------------------------")
         print(f"{student['email'].split('@')[0]}@authentification-AD")
 
-        response_prox = r.put(
-            url_proxmox + f"/api2/json/access/acl",
-            verify=False,
-            params={"path": f"/vms/{student['id_vm']}", "users":f"{student['email'].split('@')[0]}@authentification-AD", "roles":"Etudiant"},
-            cookies={"PVEAuthCookie": ticket},
-            headers={"CSRFPreventionToken": csrftoken},
-            )
+        i = 1
+        while i < 3:
+            response_prox = r.put(
+                url_proxmox + f"/api2/json/access/acl",
+                verify=False,
+                params={"path": f"/vms/{student['id_vm']}", "users":f"{student['email'].split('@')[0]}@authentification-AD", "roles":"Etudiant"},
+                cookies={"PVEAuthCookie": ticket},
+                headers={"CSRFPreventionToken": csrftoken},
+                )   
 
-        print(response_prox.status_code)
-        print(f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} Right set")
+            print(response_prox.status_code)
+            print(response_prox.text)
+
+            if response_prox.status_code == 200:
+
+                print(f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} Right set")
+                table_db.update({"is_cloned": True}, where('id_vm') == student['id_vm'])
+                break
+
+            time.sleep(randint(5, 15))
+            i+=1
 
         print("--------------------------\n")
 
@@ -191,11 +218,11 @@ def clone_vm(nom_table):
         t = Thread(name=f"Clone {vm_name}", target=request_clone_vm, args=[ticket, csrftoken, student, vm_name, storage, nom_table, node, clone_os])
         threads.append(t)
         t.start()
-        time.sleep(1)
+        time.sleep(0.5)
 
     [thread.join() for thread in threads]
 
-    print("Threads finis")
+    print("Threads clone finis")
 
 def request_delete_vm(ticket, csrftoken, node, student):
     while 1:
@@ -207,30 +234,55 @@ def request_delete_vm(ticket, csrftoken, node, student):
                         cookies={"PVEAuthCookie": ticket},
                         headers={"CSRFPreventionToken": csrftoken},
                     )
-            break
+
+            if response_prox.status_code == 200:
+                break
+            elif response_prox.status_code == 500:
+                print(f"doesnt exist")
+                break
+            else:
+                print(f"restart delete {vm_name} {response_prox.status_code} {response_prox.text}")
+                time.sleep(randint(5, 15))
+                continue
 
         except:
-            time.sleep(10)
+            time.sleep(randint(5, 15))
             continue
 
     if response_prox.status_code == 200:
         print(response_prox.text)
 
-        while get_vm_status(ticket, csrftoken, node, student["id_vm"])["data"]["qmpstatus"] != "stopped":
-            time.sleep(10)
+        is_stopped = ""
+
+        while is_stopped != "stopped":
+            is_stopped = get_vm_status(ticket, csrftoken, node, student["id_vm"])
+            is_stopped = is_stopped.json()["data"]["qmpstatus"]
+            time.sleep(randint(5, 15))
 
         print(f"VM {student['id_vm']} stopped")
 
-        response_prox = r.delete(
-                url_proxmox + f"/api2/json/nodes/{node}/qemu/{student['id_vm']}",
-                verify=False,
-                params={},
-                cookies={"PVEAuthCookie": ticket},
-                headers={"CSRFPreventionToken": csrftoken},
-            )
+        i = 1
+        while i < 3:
 
-        print(response_prox.status_code)
-        print(response_prox.text)
+            response_prox = r.delete(
+                    url_proxmox + f"/api2/json/nodes/{node}/qemu/{student['id_vm']}",
+                    verify=False,
+                    params={},
+                    cookies={"PVEAuthCookie": ticket},
+                    headers={"CSRFPreventionToken": csrftoken},
+                )
+
+            print(response_prox.status_code)
+            print(response_prox.text)
+
+            if response_prox.status_code == 200:
+
+                print(f"VM: {student['id_vm']}, User: {student['email']} Deleted")
+                # table_db.update({"is_cloned": False}, where('id_vm') == student['id_vm'])
+                break
+
+            time.sleep(randint(5, 15))
+            i+=1
 
 
 
@@ -256,11 +308,11 @@ def delete_vm(nom_table):
         t = Thread(name=f"Delete {vm_name}", target=request_delete_vm, args=[ticket, csrftoken, node, student])
         threads.append(t)
         t.start()
-        time.sleep(1)
+        time.sleep(0.5)
 
     [thread.join() for thread in threads]
 
-    print("Threads finis")
+    print("Threads delete finis")
 
         
 
