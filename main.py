@@ -18,10 +18,13 @@ from cheroot.wsgi import Server as CherryPyWSGIServer
 from cherrypy.process.servers import ServerAdapter
 
 app = Flask(__name__)
+
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # Max 2 Mo les fichiers
-app.config["FLASK_SECRET"] = "jksfd$*^^$*ù!fsfshjkhfgks"
-app.config["BASIC_AUTH_USERNAME"] = "admin"
-app.config["BASIC_AUTH_PASSWORD"] = "1234"
+
+app.config["FLASK_SECRET"] = "jksfd$*^^$*ù!fsfshjkhfgks" # clé pour chiffrer les cookies/session etc
+
+app.config["BASIC_AUTH_USERNAME"] = "admin" #login 
+app.config["BASIC_AUTH_PASSWORD"] = "1234" #mdp
 
 basic_auth = BasicAuth(app)
 
@@ -32,6 +35,7 @@ r = requests.Session()
 requests.urllib3.disable_warnings()
 
 nodes_list = ["proxmox1"]  # , "proxmox2"]
+# remettre proxmox2 quand les templates auront été créé dessus
 
 os_equivalent = {
     "1": "CentOS",
@@ -62,7 +66,7 @@ classe_equivalent = {
     "9": "Autre",
 }
 
-ALLOWED_EXTENSIONS = {"csv"}
+ALLOWED_EXTENSIONS = {"csv"} #extensions autorisées
 
 
 ############################################################################
@@ -110,6 +114,7 @@ def setup_logger():
 
 
 def login_proxmox():
+    """se connecte au proxmox via l'API et récupère les infos de session"""
     response_prox = r.post(
         url_proxmox + "/api2/json/access/ticket",
         verify=False,
@@ -122,6 +127,7 @@ def login_proxmox():
 
 
 def get_storage(ticket, csrftoken, classe):
+    """retourne ne storage associé à la classe (permet d'éviter les problèmes de case"""
     storage_list = []
     for node in nodes_list:
         response_prox = r.get(
@@ -137,6 +143,7 @@ def get_storage(ticket, csrftoken, classe):
 
 
 def get_vm_status(ticket, csrftoken, node, id_vm):
+    """recupère le statut de la VM dans le node choisi"""
     while 1:
         try:
             response_prox = r.get(
@@ -152,8 +159,8 @@ def get_vm_status(ticket, csrftoken, node, id_vm):
 
 
 def request_clone_vm(
-    ticket, csrftoken, student, vm_name, storage, nom_table, node, clone_os
-):
+    ticket, csrftoken, student, vm_name, storage, nom_table, node, clone_os):
+    """requêtes qui vont cloner les VM"""
     logger.info(f"Starting the VM clone {nom_table} for {student['email']} VM: {student['id_vm']}")
     while 1:
         try:
@@ -231,6 +238,7 @@ def request_clone_vm(
 
 
 def clone_vm(nom_table):
+    """initialisation du clone des VM à partir du template associé"""
     ticket, csrftoken = login_proxmox()
 
     classe = [
@@ -287,6 +295,7 @@ def clone_vm(nom_table):
 
 
 def request_delete_vm(ticket, csrftoken, node, student):
+    """requêtes qui vont stopper et supprimer les threads"""
     logger.info(f"Starting VM removal {student['id_vm']} of {student['email']}")
 
     while 1:
@@ -355,6 +364,7 @@ def request_delete_vm(ticket, csrftoken, node, student):
 
 
 def delete_vm(nom_table):
+    """initialise les threads qui vont stopper et supprimer les vm"""
     ticket, csrftoken = login_proxmox()
 
     threads = []
@@ -390,6 +400,7 @@ def delete_vm(nom_table):
 
 
 def allowed_file(filename):
+    """check si l'extension du fichier upload se termine bien par l'une des extension contenue dans la variable ALLOWED_HOST"""
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
@@ -426,8 +437,8 @@ def index():
 
 @app.route("/details", methods=["GET"])
 @basic_auth.required
-def dashboard():
-    """dashboard du site"""
+def details():
+    """details d'une classe-os du site"""
     classe = request.args.get("classe")
     os = request.args.get("os")
 
@@ -539,7 +550,7 @@ def delete_class():
 
 
 if __name__ == "__main__":
-    url_proxmox = "https://172.16.1.92:8006"
+    url_proxmox = "https://172.16.1.92:8006" #without / at the end
     username = "projet1@pve"
     password = "EsFJZ2409GYX@ip"
     logger = setup_logger()
