@@ -31,7 +31,7 @@ username = "balbla@pve"
 password = "12345"
 
 role = "Etudiant" # user's role on the cloned vm
-authentication_mode = "authentification-AD" # user authentication method in proxmox, exemple peterpan.ir5@authentification-AD
+authentication_mode = "authentification-AD" # user authentication method in proxmox, exemple with user peterpan : peterpan@authentification-AD
 ```
 You can add a maximum of 2 nodes to distribute the created VMs:
 ```json
