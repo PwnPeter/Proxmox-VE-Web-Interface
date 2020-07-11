@@ -1,7 +1,7 @@
 <footer class="footer">
     <div class="content has-text-centered">
         <p>
-           esaip
+            esaip
         </p>
     </div>
 </footer>
@@ -28,103 +28,104 @@
 </script>
 
 <script>
-    $(document).ready(function(){
-      $("#searchbar-tab").on("keyup", function() {
-        var value = $(this).val().toLowerCase();
-        $(".classTable tr").filter(function() {
-          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    $(document).ready(function () {
+        $("#searchbar-tab").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $(".classTable tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
         });
-      });
     });
-    </script>
-
-<script>
-    $(document).ready(function(){
-
-        function generate_notif(message, couleur){
-            return `<p class="notification ${couleur}" role="alert"><strong>${message}</strong><br><button class="delete" type="button">Close</button></p>`
-        }
-
-
-$("#upload-file").click(function(){
-
-    $('#upload-file').addClass('is-loading')
-   
-    var fd = new FormData();
-    var files = $('.file-input')[0].files[0];
-    var class_e = $(".select-class").children("option:selected").val().toString();
-    var os = $(".select-os").children("option:selected").val().toString();
-    fd.append('file',files);
-    fd.append('os', os);
-    fd.append('class', class_e);
-    
-
-    $.ajax({
-        url: '/upload',
-        type: 'POST',
-        data: fd,
-        contentType: false,
-        processData: false,
-        statusCode: {
-            201 : function(response){
-                var classe_added = response["classe"]
-                var date_added = response["date_crea"]
-                var os_added = response["os"]
-           
-                $('#upload-file').removeClass('is-loading')
-
-                $("#notif").append(generate_notif('VM created', 'is-success'))
-
-                var new_row = `<tr><td>${classe_added}</td><td>${os_added}</td><td>${date_added}</td><td><div class="buttons"><button class="button is-info">Détails</button><button class="button is-danger">Supprimer</button></div></td></tr>`;
-                $("table tbody").append(new_row);
-
-        },
-            404 : function(response) {
-                $('#upload-file').removeClass('is-loading')
-
-                $("#notif").append(generate_notif('Error 404, retry', 'is-warning'))
-            },
-            409 : function(response) {
-                $('#upload-file').removeClass('is-loading')
-
-                $("#notif").append(generate_notif('Error 409, VM for this OS and this class already exist, please delete them before', 'is-danger'))
-            }
-        }
-
-    });
-});
-});
 </script>
+
 <script>
-$(document).ready(function(){
+    function generate_notif(message, couleur) {
+        return `<p class="notification ${couleur}" role="alert"><strong>${message}</strong><br><button class="delete" type="button">Close</button></p>`
+    }
 
-// code to read selected table row cell data (values).
-$("#table-class").on('click','.delete-row',function(){
-     // get the current row
-     var currentRow=$(this).closest("tr"); 
-     
-     var classe=currentRow.find("td:eq(0)").text(); // get current row 1st TD value
-     var os=currentRow.find("td:eq(1)").text(); // get current row 2nd TD
-     var date=currentRow.find("td:eq(2)").text(); // get current row 3rd TD
-     
-     $.ajax({
-        url: '/delete',
-        type: 'PUT',
-        data: JSON.stringify({
-                    'classe': classe,
-                    'os': os,
-                    'date': date,
-                }),
-        contentType: "application/json; charset=utf-8",
-        processData: false,
-        statusCode: {
-            201 : function(response){
-                currentRow.remove() 
+    $(document).ready(function () {
 
-        },
 
-        }
+
+        $("#upload-file").click(function () {
+
+            $('#upload-file').addClass('is-loading')
+
+            var fd = new FormData();
+            var files = $('.file-input')[0].files[0];
+            var class_e = $(".select-class").children("option:selected").val().toString();
+            var os = $(".select-os").children("option:selected").val().toString();
+            fd.append('file', files);
+            fd.append('os', os);
+            fd.append('class', class_e);
+
+
+            $.ajax({
+                url: '/upload',
+                type: 'POST',
+                data: fd,
+                contentType: false,
+                processData: false,
+                statusCode: {
+                    201: function (response) {
+                        var classe_added = response["classe"]
+                        var date_added = response["date_crea"]
+                        var os_added = response["os"]
+
+                        $('#upload-file').removeClass('is-loading')
+
+                        $("#notif").append(generate_notif('VM created', 'is-success'))
+
+                        var new_row = `<tr><td>${classe_added}</td><td>${os_added}</td><td>${date_added}</td><td><div class="buttons"><button class="button is-info">Détails</button><button class="button is-danger">Supprimer</button></div></td></tr>`;
+                        $("table tbody").append(new_row);
+
+                    },
+                    404: function (response) {
+                        $('#upload-file').removeClass('is-loading')
+
+                        $("#notif").append(generate_notif('Error 404, retry', 'is-warning'))
+                    },
+                    409: function (response) {
+                        $('#upload-file').removeClass('is-loading')
+
+                        $("#notif").append(generate_notif('Error 409, VM for this OS and this class already exist, please delete them before', 'is-danger'))
+                    }
+                }
+
+            });
+        });
     });
-});
-});
+
+    // code to read selected table row cell data (values).
+    $("#table-class").on('click', '.delete-row', function () {
+        // get the current row
+        var currentRow = $(this).closest("tr");
+
+        var classe = currentRow.find("td:eq(0)").text(); // get current row 1st TD value
+        var os = currentRow.find("td:eq(1)").text(); // get current row 2nd TD
+        var date = currentRow.find("td:eq(2)").text(); // get current row 3rd TD
+
+        $.ajax({
+            url: '/delete',
+            type: 'PUT',
+            data: JSON.stringify({
+                'classe': classe,
+                'os': os,
+                'date': date,
+            }),
+            contentType: "application/json; charset=utf-8",
+            processData: false,
+            statusCode: {
+                201: function (response) {
+                    currentRow.remove()
+
+                },
+                500: function (response) {
+                    $("#notif").append(generate_notif('Error', 'is-danger'))
+                }
+
+            }
+        });
+    });
+
 </script>
