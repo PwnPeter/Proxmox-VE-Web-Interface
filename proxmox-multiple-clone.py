@@ -1,3 +1,5 @@
+#/usr/bin/python3
+
 import csv
 import json
 import time
@@ -18,21 +20,44 @@ from cheroot.wsgi import Server as CherryPyWSGIServer
 from cherrypy.process.servers import ServerAdapter
 
 app = Flask(__name__)
+r = requests.Session()
+basic_auth = BasicAuth(app)
+db = TinyDB("database/proxmox-class.json", indent=3)
+requests.urllib3.disable_warnings()
+
 
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # Max 2 Mo les fichiers
 
 app.config["FLASK_SECRET"] = "jksfd$*^^$*ù!fsfshjkhfgks" # clé pour chiffrer les cookies/session etc
 
 app.config["BASIC_AUTH_USERNAME"] = "admin" #login 
+
 app.config["BASIC_AUTH_PASSWORD"] = "1234" #mdp
 
-basic_auth = BasicAuth(app)
 
-db = TinyDB("database/proxmox-class.json", indent=3)
+#infos proxmox
+url_proxmox = "https://172.16.1.92:8006" #without / at the end
+username = "projet1@pve"
+password = "EsFJZ2409GYX@ip"
 
-r = requests.Session()
+# Prints logger info to terminal
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)  # Change  this to DEBUG if you want a lot more info
+stream_handler = logging.StreamHandler()
+file_handler = logging.FileHandler("logs/server.log", encoding="utf-8")
+# create formatter
+formatter = logging.Formatter(
+    "%(asctime)s - %(levelname)s - %(message)s - line %(lineno)d"
+)
 
-requests.urllib3.disable_warnings()
+# add formatter to stream_handler
+stream_handler.setFormatter(formatter)
+file_handler.setFormatter(formatter)
+# http_handler.setFormatter(formatter_http)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
+# logger.addHandler(http_handler)
 
 nodes_list = ["proxmox1"]  # , "proxmox2"]
 # remettre proxmox2 quand les templates auront été créé dessus
@@ -90,27 +115,8 @@ def run_in_cp_tree(app, HOST="0.0.0.0", PORT=8080):
     cp.config.update(server_config)
     cp.engine.start()
 
-def setup_logger():
-    # Prints logger info to terminal
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)  # Change  this to DEBUG if you want a lot more info
-    stream_handler = logging.StreamHandler()
-    file_handler = logging.FileHandler("logs/server.log", encoding="utf-8")
-    # create formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s - %(message)s - line %(lineno)d"
-    )
 
-    # add formatter to stream_handler
-    stream_handler.setFormatter(formatter)
-    file_handler.setFormatter(formatter)
-    # http_handler.setFormatter(formatter_http)
 
-    logger.addHandler(file_handler)
-    logger.addHandler(stream_handler)
-    # logger.addHandler(http_handler)
-
-    return logger
 
 
 def login_proxmox():
@@ -262,6 +268,7 @@ def clone_vm(nom_table):
     threads = []
 
     for pos, student in enumerate(db.table(nom_table).all()):
+
         if int(student["id_vm"]) % 2 == 0 and len(nodes_list) > 1:
             node = nodes_list[1]  # si pair ça go sur proxmox2
         else:
@@ -454,6 +461,8 @@ def details():
     )
 
 
+# API REST
+
 @app.route("/upload", methods=["POST"])
 def upload_csv():
     """récupère le csv et les choix de génération des VM (classe + os)"""
@@ -521,6 +530,7 @@ def upload_csv():
         rowrow["os"] = os
         rowrow["id_vm"] = f"{classe}{os}{pos:03d}"
         rowrow["is_cloned"] = False
+
         table_promo.insert(rowrow)
 
     logger.info(f"Table {nom_table} created and datas inserted")
@@ -550,10 +560,6 @@ def delete_class():
 
 
 if __name__ == "__main__":
-    url_proxmox = "https://172.16.1.92:8006" #without / at the end
-    username = "projet1@pve"
-    password = "EsFJZ2409GYX@ip"
-    logger = setup_logger()
 
     run_in_cp_tree(app,)
 
