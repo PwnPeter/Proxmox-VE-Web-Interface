@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, render_template, request, Response
+from flask_basicauth import BasicAuth
 from werkzeug.utils import secure_filename
 import csv
 from tinydb import TinyDB, Query, where
@@ -12,6 +13,11 @@ from threading import Thread
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # Max 2 Mo les fichiers
+app.config["FLASK_SECRET"] = "jksfd$*^^$*ù!fsfshjkhfgks"
+app.config['BASIC_AUTH_USERNAME'] = 'admin'
+app.config['BASIC_AUTH_PASSWORD'] = '1234'
+
+basic_auth = BasicAuth(app)
 
 db = TinyDB("database/proxmox-class.json", indent=3)
 
@@ -325,6 +331,7 @@ def allowed_file(filename):
 
 
 @app.route("/", methods=["GET"])
+@basic_auth.required
 def index():
     """page d'accueil du site"""
 
@@ -345,6 +352,7 @@ def index():
 
 
 @app.route("/details", methods=["GET"])
+@basic_auth.required
 def dashboard():
     """dashboard du site"""
     classe = request.args.get('classe')
