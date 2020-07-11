@@ -1,0 +1,65 @@
+{% include 'header.html' %}
+
+<body>
+
+    <title>Accueil</title>
+    <span id="notif"></span>
+    <section class="hero">
+            
+
+       
+    
+        <div class="hero-body">
+            
+            <div class="columns is-centered">
+                <div class="column is-9">
+                    <h3 class="title is-3" style="text-align: center;">Détails {{classe}} {{os}}</h3>
+
+
+                    <table class="table" id="table-class" style="margin: auto;">
+                        <div class="columns is-centered">
+                            <div class="column is-4">
+                                <div class="field">
+                                    <p class="control has-icons-left has-icons-right">
+                                        <input class="input" id="searchbar-tab" type="text" placeholder="Recherche">
+                                        <span class="icon is-small is-left">
+                                            <i class="fas fa-search"></i> </span>
+                                    </p>
+                    
+                                </div>
+                            </div>
+                            <thead>
+                                <tr>
+                                    <!-- <th><abbr title="Position">Pos</abbr></th> -->
+                                    <th>Vmid</th>
+                                    <th>Prénom</th>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody class="classTable">
+                    
+                            {%for eleve in liste_eleve %}
+                            <tr>
+                                <!-- <th>{{loop.index}}</th> -->
+                                <td >{{eleve['id_vm']}}</td>
+                                <td >{{eleve['firstname']}}</td>
+                                <td>{{eleve['lastname']}}</td>
+                                <td>{{eleve['email']}}</td>
+                    
+                            </tr>
+                            {%endfor%}
+                            </tbody>
+                    </table>
+
+                    
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</body>
+
+{% include 'footer.html' %}

@@ -341,13 +341,19 @@ def index():
             )
             break
 
-    return render_template("index.html", liste_classes=liste_classes)
+    return render_template("index.html", liste_classes=liste_classes, url_proxmox=url_proxmox, url_proxmox_troncat=url_proxmox.split("://")[1])
 
 
 @app.route("/details", methods=["GET"])
 def dashboard():
     """dashboard du site"""
-    return render_template("index.html")
+    classe = request.args.get('classe')
+    os = request.args.get('os')
+
+    table_promo = db.table(f"classe-{classe}-os-{os}".lower())
+
+
+    return render_template("details.html", liste_eleve=table_promo.all(), classe=classe, os=os, url_proxmox=url_proxmox, url_proxmox_troncat=url_proxmox.split("://")[1])
 
 
 @app.route("/upload", methods=["POST"])
