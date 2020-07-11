@@ -27,7 +27,7 @@
     });
 </script>
 
-<script>
+<script> // La barre de recherche
     $(document).ready(function () {
         $("#searchbar-tab").on("keyup", function () {
             var value = $(this).val().toLowerCase();
@@ -39,7 +39,7 @@
 </script>
 
 <script>
-    function generate_notif(message, couleur) {
+    function generate_notif(message, couleur) { // génrétaion des notifictaions
         return `<p class="notification ${couleur}" role="alert"><strong>${message}</strong><br><button class="delete" type="button">Close</button></p>`
     }
 
