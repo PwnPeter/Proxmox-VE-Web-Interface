@@ -1,7 +1,7 @@
 # Proxmox VE Web Interface
 
 <p align="center">
-  <img width="800" height="270" src="static/img/pres_site.png">
+  <img src="static/img/pres_site.png">
 </p>
 
 
