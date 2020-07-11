@@ -1,5 +1,10 @@
 # Proxmox VE Web Interface
 
+<p align="center">
+  <img width="800" height="270" src="static/img/pres_site.png">
+</p>
+
+
 Upload a simple .csv (with columns `firstname, lastname, email`) file to clone VMs from a template/VM id and affect role.
 You can next delete them in one click 🐱‍🏍
 
