@@ -30,9 +30,9 @@ app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # Max 2 Mo les fichiers
 
 app.config["FLASK_SECRET"] = "jksfd$*^^$*ù!fsfshjkhfgks" # clé pour chiffrer les cookies/session etc
 
-app.config["BASIC_AUTH_USERNAME"] = "admin" #login 
+app.config["BASIC_AUTH_USERNAME"] = "admin" # login 
 
-app.config["BASIC_AUTH_PASSWORD"] = "1234" #mdp
+app.config["BASIC_AUTH_PASSWORD"] = "1234" # password
 
 
 #infos proxmox
@@ -61,6 +61,9 @@ logger.addHandler(stream_handler)
 
 nodes_list = ["proxmox1"]  # , "proxmox2"]
 # remettre proxmox2 quand les templates auront été créé dessus
+
+role = "Etudiant"
+authentication_mode = "authentification-AD"
 
 os_equivalent = {
     "1": "CentOS",
@@ -222,8 +225,8 @@ def request_clone_vm(
                 verify=False,
                 params={
                     "path": f"/vms/{student['id_vm']}",
-                    "users": f"{student['email'].split('@')[0]}@authentification-AD",
-                    "roles": "Etudiant",
+                    "users": f"{student['email'].split('@')[0]}@{authentication_mode}",
+                    "roles": role,
                 },
                 cookies={"PVEAuthCookie": ticket},
                 headers={"CSRFPreventionToken": csrftoken},
