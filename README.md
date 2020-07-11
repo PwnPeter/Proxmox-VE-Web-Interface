@@ -20,7 +20,7 @@ Next go to http://localhost:8080
 ## Mini Documentation 📚
 
 You can change these variables:
-```json
+```python
 app.config["BASIC_AUTH_USERNAME"] = "admin" # login 
 
 app.config["BASIC_AUTH_PASSWORD"] = "1234" # password
@@ -31,10 +31,10 @@ username = "balbla@pve"
 password = "12345"
 
 role = "Etudiant" # user's role on the cloned vm
-authentication_mode = "authentification-AD" # user authentication method in proxmox, exemple with user peterpan : peterpan@authentification-AD
+authentication_mode = "authentification-AD" # user authentication method in proxmox, exemple with user peterpan: peterpan@authentification-AD
 ```
 You can add a maximum of 2 nodes to distribute the created VMs:
-```json
+```python
 nodes_list = ["proxmox1"] 
 # or 
 nodes_list = ["proxmox1", "proxmox2"] # for exemple, you need to have the same template (with same id) in each node
@@ -72,7 +72,7 @@ classe_equivalent = {
 ```
 
 The **value** associated with one of the `os_equivalent` **keys** must match an equivalent `template_equivalent` **key**, ex:
-```json
+```python
 os_equivalent = {
     "1": "CentOS", # this value (CentOS) match with 
     "2": "Debian",
