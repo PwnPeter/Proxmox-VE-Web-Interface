@@ -1,6 +1,7 @@
 # Proxmox VE Web Interface
 
 Upload a simple .csv (with columns `firstname, lastname, email`) file to clone VMs :)
+You can next delete them in one click 🐱‍🏍
 
 ## Get Started
 ```bash
@@ -42,7 +43,7 @@ classe_equivalent = {
 }
 ```
 
-The value associated with one of the `os_equivalent` keys must match an equivalent `template_equivalent` key, ex:
+The **value** associated with one of the `os_equivalent` **keys** must match an equivalent `template_equivalent` **key**, ex:
 ```json
 os_equivalent = {
     "1": "CentOS", # this value (CentOS) match with 
