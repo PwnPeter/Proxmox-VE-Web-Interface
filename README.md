@@ -58,7 +58,7 @@ template_equivalent = {
     "WinSRV2016": 104,
 }
 
-classe_equivalent = {
+class_equivalent = {
     "1": "ING1",
     "2": "ING2",
     "3": "IR3",
