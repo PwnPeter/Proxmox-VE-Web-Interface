@@ -12,7 +12,7 @@ All VM id are created with the next pattern :
 ## Get Started 🐱‍💻
 ```bash
 pip3 -r requirements.txt
-python3.8 main.py # python >= 3.0 required
+python3.8 proxmox_multiple_clone.py # python >= 3.0 required
 ```
 
 Next go to http://localhost:8080
