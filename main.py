@@ -1,21 +1,23 @@
-from flask import Flask, jsonify, render_template, request, Response
-from flask_basicauth import BasicAuth
-from werkzeug.utils import secure_filename
 import csv
-from tinydb import TinyDB, Query, where
-from datetime import datetime
-import requests
 import json
 import time
+from datetime import datetime
 from random import randint
-import asyncio
 from threading import Thread
+
+import requests
+import logging
+
+from flask import Flask, Response, jsonify, render_template, request
+from flask_basicauth import BasicAuth
+from tinydb import Query, TinyDB, where
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # Max 2 Mo les fichiers
 app.config["FLASK_SECRET"] = "jksfd$*^^$*ù!fsfshjkhfgks"
-app.config['BASIC_AUTH_USERNAME'] = 'admin'
-app.config['BASIC_AUTH_PASSWORD'] = '1234'
+app.config["BASIC_AUTH_USERNAME"] = "admin"
+app.config["BASIC_AUTH_PASSWORD"] = "1234"
 
 basic_auth = BasicAuth(app)
 
@@ -25,7 +27,7 @@ r = requests.Session()
 
 requests.urllib3.disable_warnings()
 
-nodes_list = ["proxmox1"]#, "proxmox2"]
+nodes_list = ["proxmox1"]  # , "proxmox2"]
 
 os_equivalent = {
     "1": "CentOS",
@@ -59,6 +61,34 @@ classe_equivalent = {
 ALLOWED_EXTENSIONS = {"csv"}
 
 
+############################################################################
+############################################################################
+############################################################################
+
+
+def setup_logger():
+    # Prints logger info to terminal
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)  # Change  this to DEBUG if you want a lot more info
+    stream_handler = logging.StreamHandler()
+    file_handler = logging.FileHandler("logs/server.log", encoding="utf-8")
+    # create formatter
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(message)s - line %(lineno)d"
+    )
+
+    # add formatter to stream_handler
+    stream_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+    # http_handler.setFormatter(formatter_http)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+    # logger.addHandler(http_handler)
+
+    return logger
+
+
 def login_proxmox():
     response_prox = r.post(
         url_proxmox + "/api2/json/access/ticket",
@@ -66,44 +96,23 @@ def login_proxmox():
         params={"username": username, "password": password},
     ).json()
 
-    print(response_prox)
+    logger.info(response_prox)
 
     return response_prox["data"]["ticket"], response_prox["data"]["CSRFPreventionToken"]
 
 
-# def get_last_vm_id(ticket, csrf):
-#     start_nodes_list = []
-
-#     for node in nodes_list:
-#         response_prox = r.get(
-#             url_proxmox + f"/api2/json/nodes/{node}/qemu",
-#             verify=False,
-#             cookies={"PVEAuthCookie": ticket},
-#             headers={"CSRFPreventionToken": csrf},
-#         ).json()
-#         last_vmid = (
-#             int(
-#                 sorted(response_prox["data"], key=lambda i: i["vmid"], reverse=True)[0][
-#                     "vmid"
-#                 ]
-#             )
-#             + 1000
-#         )  # on choppe la dernière vmid dispo et on ajoute +1000 pour commencer ici
-
-#         start_nodes_list.append({"node": node, "last_vmid": last_vmid})
-
-#     print(start_nodes_list)
-
-#     return nodes_list
-
 def get_storage(ticket, csrftoken, classe):
-    storage_list =[]
+    storage_list = []
     for node in nodes_list:
-        response_prox = r.get(url_proxmox+f'/api2/json/nodes/{node}/storage', verify=False, cookies={'PVEAuthCookie':ticket}, headers={'CSRFPreventionToken':csrftoken}).json()
+        response_prox = r.get(
+            url_proxmox + f"/api2/json/nodes/{node}/storage",
+            verify=False,
+            cookies={"PVEAuthCookie": ticket},
+            headers={"CSRFPreventionToken": csrftoken},
+        ).json()
         for storage in response_prox["data"]:
             if storage["storage"].lower() == classe.lower():
-               # print(r.get(url_proxmox+f'api2/json/nodes/{node}/storage/{storage["storage"]}', verify=False, cookies={'PVEAuthCookie':ticket}, headers={'CSRFPreventionToken':csrftoken}).json())
-                
+
                 return storage["storage"]
 
 
@@ -111,42 +120,49 @@ def get_vm_status(ticket, csrftoken, node, id_vm):
     while 1:
         try:
             response_prox = r.get(
-                            url_proxmox + f"/api2/json/nodes/{node}/qemu/{id_vm}/status/current",
-                            verify=False,
-                            cookies={"PVEAuthCookie": ticket},
-                            headers={"CSRFPreventionToken": csrftoken},
-                        )
+                url_proxmox + f"/api2/json/nodes/{node}/qemu/{id_vm}/status/current",
+                verify=False,
+                cookies={"PVEAuthCookie": ticket},
+                headers={"CSRFPreventionToken": csrftoken},
+            )
             break
         except:
             continue
     return response_prox
 
-def request_clone_vm(ticket, csrftoken, student, vm_name, storage, nom_table, node, clone_os):
+
+def request_clone_vm(
+    ticket, csrftoken, student, vm_name, storage, nom_table, node, clone_os
+):
+    logger.info(f"Starting the VM clone {nom_table} for {student['email']}")
     while 1:
         try:
             response_prox = r.post(
-                    url_proxmox + f"/api2/json/nodes/{node}/qemu/{clone_os}/clone",
-                    verify=False,
-                    params={"newid": int(student["id_vm"]), "name":vm_name, "full":1, "storage":f"{storage}"},
-                    cookies={"PVEAuthCookie": ticket},
-                    headers={"CSRFPreventionToken": csrftoken},
-                )
-
-            print(response_prox.status_code)
-
+                url_proxmox + f"/api2/json/nodes/{node}/qemu/{clone_os}/clone",
+                verify=False,
+                params={
+                    "newid": int(student["id_vm"]),
+                    "name": vm_name,
+                    "full": 1,
+                    "storage": f"{storage}",
+                },
+                cookies={"PVEAuthCookie": ticket},
+                headers={"CSRFPreventionToken": csrftoken},
+            )
             if response_prox.status_code == 200:
                 break
             elif response_prox.status_code == 500:
-                print(f"{vm_name} already exsits")
+                logging.warning(f"{vm_name} already exsits")
                 break
             else:
-                print(f"restart clone {vm_name} {response_prox.status_code} {response_prox.text}")
+                logging.warning(
+                    f"restart clone {vm_name} {response_prox.status_code} {response_prox.text}"
+                )
                 time.sleep(randint(5, 15))
                 continue
         except:
             time.sleep(randint(5, 15))
             continue
-
 
     if response_prox.status_code == 200 or response_prox.status_code == 500:
         table_db = db.table(nom_table)
@@ -156,98 +172,123 @@ def request_clone_vm(ticket, csrftoken, student, vm_name, storage, nom_table, no
         is_cloned = ""
         while is_cloned != vm_name:
             is_cloned = get_vm_status(ticket, csrftoken, node, student["id_vm"])
-            print(is_cloned.status_code)
-            print(is_cloned.text)
             is_cloned = is_cloned.json()["data"]["name"]
             time.sleep(randint(5, 15))
 
-        print(f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} cloned")
-
-        print("--------------------------")
-        print(f"{student['email'].split('@')[0]}@authentification-AD")
+        logger.info(
+            f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} cloned"
+        )
 
         i = 1
         while i < 3:
             response_prox = r.put(
                 url_proxmox + f"/api2/json/access/acl",
                 verify=False,
-                params={"path": f"/vms/{student['id_vm']}", "users":f"{student['email'].split('@')[0]}@authentification-AD", "roles":"Etudiant"},
+                params={
+                    "path": f"/vms/{student['id_vm']}",
+                    "users": f"{student['email'].split('@')[0]}@authentification-AD",
+                    "roles": "Etudiant",
+                },
                 cookies={"PVEAuthCookie": ticket},
                 headers={"CSRFPreventionToken": csrftoken},
-                )   
-
-            print(response_prox.status_code)
-            print(response_prox.text)
+            )
 
             if response_prox.status_code == 200:
 
-                print(f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} Right set")
-                table_db.update({"is_cloned": True}, where('id_vm') == student['id_vm'])
+                logger.info(
+                    f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} right set"
+                )
+                table_db.update({"is_cloned": True}, where("id_vm") == student["id_vm"])
                 break
 
             time.sleep(randint(5, 15))
-            i+=1
+            i += 1
 
-        print("--------------------------\n")
+        if response_prox.status_code != 200:
+            logger.error(
+                f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} right not set"
+            )
 
 
 def clone_vm(nom_table):
     ticket, csrftoken = login_proxmox()
 
-    # recup=r.get(url_proxmox+'/api2/json/nodes/proxmox1/qemu/2045/status', verify=False, cookies={'PVEAuthCookie':ticket}, headers={'CSRFPreventionToken':csrftoken})
-    # print(recup.status_code)
-    # print(recup.text)
-    classe = [classe_name for classe_id, classe_name in classe_equivalent.items() if classe_name.lower() == nom_table.split("-")[1].lower()][0].lower()
-
-    print("classe : "+str(classe))
+    classe = [
+        classe_name
+        for classe_id, classe_name in classe_equivalent.items()
+        if classe_name.lower() == nom_table.split("-")[1].lower()
+    ][0].lower()
 
     storage = get_storage(ticket, csrftoken, classe)
 
-    os_name = [os_name for os_id, os_name in os_equivalent.items() if os_name.lower() == nom_table.split("-")[::-1][0].lower()][0]
+    os_name = [
+        os_name
+        for os_id, os_name in os_equivalent.items()
+        if os_name.lower() == nom_table.split("-")[::-1][0].lower()
+    ][0]
     clone_os = template_equivalent[os_name]
-    print(f"Os name : {os_name}, Id vm {clone_os}")
-    
+    # print(f"Os name : {os_name}, Id vm {clone_os}")
+
     # nodes_list_for_cloning = get_last_vm_id(ticket, csrf)
 
     threads = []
 
     for pos, student in enumerate(db.table(nom_table).all()):
-        if int(student["id_vm"]) % 2 == 0 and len(nodes_list)>1:
-            node = nodes_list[1] #si pair ça go sur proxmox2
+        if int(student["id_vm"]) % 2 == 0 and len(nodes_list) > 1:
+            node = nodes_list[1]  # si pair ça go sur proxmox2
         else:
-            node = nodes_list[0] #sinon proxmox1
+            node = nodes_list[0]  # sinon proxmox1
 
-        print(f"Node {node}")
+        # print(f"Node {node}")
 
         vm_name = f"{os_name}-{student['email']}".split("@")[0]
 
-        t = Thread(name=f"Clone {vm_name}", target=request_clone_vm, args=[ticket, csrftoken, student, vm_name, storage, nom_table, node, clone_os])
+        t = Thread(
+            name=f"Clone {vm_name}",
+            target=request_clone_vm,
+            args=[
+                ticket,
+                csrftoken,
+                student,
+                vm_name,
+                storage,
+                nom_table,
+                node,
+                clone_os,
+            ],
+        )
         threads.append(t)
         t.start()
         time.sleep(0.5)
 
     [thread.join() for thread in threads]
 
-    print("Threads clone finis")
+    logger.info("Threads clone finished")
+
 
 def request_delete_vm(ticket, csrftoken, node, student):
+    logger.info(f"Starting VM removal {student['id_vm']} of {student['email']}")
+
     while 1:
         try:
             response_prox = r.post(
-                        url_proxmox + f"/api2/json/nodes/{node}/qemu/{student['id_vm']}/status/stop",
-                        verify=False,
-                        params={"timeout":5},
-                        cookies={"PVEAuthCookie": ticket},
-                        headers={"CSRFPreventionToken": csrftoken},
-                    )
+                url_proxmox
+                + f"/api2/json/nodes/{node}/qemu/{student['id_vm']}/status/stop",
+                verify=False,
+                params={"timeout": 5},
+                cookies={"PVEAuthCookie": ticket},
+                headers={"CSRFPreventionToken": csrftoken},
+            )
 
             if response_prox.status_code == 200:
                 break
             elif response_prox.status_code == 500:
-                print(f"doesnt exist")
+                logger.warning(f"Doesn't exist")
                 break
             else:
-                print(f"restart delete {vm_name} {response_prox.status_code} {response_prox.text}")
+                logger.warning(
+                    f"Restart delete {student['id_vm']} {response_prox.status_code} {response_prox.text}"
+                )
                 time.sleep(randint(5, 15))
                 continue
 
@@ -256,7 +297,7 @@ def request_delete_vm(ticket, csrftoken, node, student):
             continue
 
     if response_prox.status_code == 200:
-        print(response_prox.text)
+        # print(response_prox.text)
 
         is_stopped = ""
 
@@ -265,69 +306,76 @@ def request_delete_vm(ticket, csrftoken, node, student):
             is_stopped = is_stopped.json()["data"]["qmpstatus"]
             time.sleep(randint(5, 15))
 
-        print(f"VM {student['id_vm']} stopped")
+        logger.info(f"VM {student['id_vm']} stopped")
 
         i = 1
         while i < 3:
 
             response_prox = r.delete(
-                    url_proxmox + f"/api2/json/nodes/{node}/qemu/{student['id_vm']}",
-                    verify=False,
-                    params={},
-                    cookies={"PVEAuthCookie": ticket},
-                    headers={"CSRFPreventionToken": csrftoken},
-                )
-
-            print(response_prox.status_code)
-            print(response_prox.text)
+                url_proxmox + f"/api2/json/nodes/{node}/qemu/{student['id_vm']}",
+                verify=False,
+                params={},
+                cookies={"PVEAuthCookie": ticket},
+                headers={"CSRFPreventionToken": csrftoken},
+            )
 
             if response_prox.status_code == 200:
 
-                print(f"VM: {student['id_vm']}, User: {student['email']} Deleted")
+                logger.info(f"VM: {student['id_vm']}, User: {student['email']} deleted")
                 # table_db.update({"is_cloned": False}, where('id_vm') == student['id_vm'])
                 break
 
             time.sleep(randint(5, 15))
-            i+=1
+            i += 1
 
+        if response_prox.status_code != 200:
+            logger.error(
+                f"VM: {student['id_vm']}, User: {student['email']} not deleted"
+            )
 
 
 def delete_vm(nom_table):
     ticket, csrftoken = login_proxmox()
 
-
     threads = []
 
     for pos, student in enumerate(db.table(nom_table).all()):
-        if int(student["id_vm"]) % 2 == 0 and len(nodes_list)>1:
-            node = nodes_list[1] #si pair ça go sur proxmox2
+        if int(student["id_vm"]) % 2 == 0 and len(nodes_list) > 1:
+            node = nodes_list[1]  # si pair ça go sur proxmox2
         else:
-            node = nodes_list[0] #sinon proxmox1
+            node = nodes_list[0]  # sinon proxmox1
 
-        print(f"Node {node}")
+        # print(f"Node {node}")
 
-        os_name = [os_name for os_id, os_name in os_equivalent.items() if os_name.lower() == nom_table.split("-")[::-1][0].lower()][0]
-
+        os_name = [
+            os_name
+            for os_id, os_name in os_equivalent.items()
+            if os_name.lower() == nom_table.split("-")[::-1][0].lower()
+        ][0]
 
         vm_name = f"{os_name}-{student['email']}".split("@")[0]
 
-        t = Thread(name=f"Delete {vm_name}", target=request_delete_vm, args=[ticket, csrftoken, node, student])
+        t = Thread(
+            name=f"Delete {vm_name}",
+            target=request_delete_vm,
+            args=[ticket, csrftoken, node, student],
+        )
         threads.append(t)
         t.start()
         time.sleep(0.5)
 
     [thread.join() for thread in threads]
 
-    print("Threads delete finis")
-
-        
-
-
-        
+    logger.info("Threads delete finished")
 
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+############################################################################################################
+############################################################################################################
+############################################################################################################
 
 
 @app.route("/", methods=["GET"])
@@ -348,20 +396,31 @@ def index():
             )
             break
 
-    return render_template("index.html", liste_classes=liste_classes, url_proxmox=url_proxmox, url_proxmox_troncat=url_proxmox.split("://")[1])
+    return render_template(
+        "index.html",
+        liste_classes=liste_classes,
+        url_proxmox=url_proxmox,
+        url_proxmox_troncat=url_proxmox.split("://")[1],
+    )
 
 
 @app.route("/details", methods=["GET"])
 @basic_auth.required
 def dashboard():
     """dashboard du site"""
-    classe = request.args.get('classe')
-    os = request.args.get('os')
+    classe = request.args.get("classe")
+    os = request.args.get("os")
 
     table_promo = db.table(f"classe-{classe}-os-{os}".lower())
 
-
-    return render_template("details.html", liste_eleve=table_promo.all(), classe=classe, os=os, url_proxmox=url_proxmox, url_proxmox_troncat=url_proxmox.split("://")[1])
+    return render_template(
+        "details.html",
+        liste_eleve=table_promo.all(),
+        classe=classe,
+        os=os,
+        url_proxmox=url_proxmox,
+        url_proxmox_troncat=url_proxmox.split("://")[1],
+    )
 
 
 @app.route("/upload", methods=["POST"])
@@ -371,7 +430,7 @@ def upload_csv():
     # check if the post request has the file part
 
     if "file" not in request.files or "os" not in request.form:
-        print("pas de file ou de numero")
+        logger.error("None File or empty os")
         return Response(status=404)
 
     file = request.files["file"]
@@ -379,9 +438,8 @@ def upload_csv():
     # if user does not select file, browser also
     # submit an empty part without filename
 
-    print(file.filename)
     if file.filename == "":
-        print("non du fichier vide")
+        logger.error("Empty file")
 
         return Response(status=404)
 
@@ -402,9 +460,6 @@ def upload_csv():
         delimiter=";",
     )
 
-    # print(ligne := str([ligne for num_ligne, ligne in enumerate(reader) if num_ligne == 1][0]["classe"]))
-    print(not request.form["class"])
-    print(not str(request.form["class"]) == "default")
     if not request.form["class"] or str(request.form["class"]) == "default":
         for num_ligne, ligne in enumerate(reader):
             if num_ligne == 1:
@@ -412,14 +467,13 @@ def upload_csv():
     else:
         classe = str(request.form["class"])
 
-    print(
-        nom_table := f"classe-{classe_equivalent[classe]}-os-{os_equivalent[os]}".lower()
-    )
+    nom_table = f"classe-{classe_equivalent[classe]}-os-{os_equivalent[os]}".lower()
 
     if nom_table in db.tables():
         return Response(status=409)
 
     table_promo = db.table(nom_table)
+    logger.info(f"Table {nom_table} created")
 
     reader = csv.DictReader(
         csv_file_string.splitlines(),
@@ -435,8 +489,10 @@ def upload_csv():
         rowrow["classe"] = classe
         rowrow["os"] = os
         rowrow["id_vm"] = f"{classe}{os}{pos:03d}"
-        rowrow['is_cloned'] = False
+        rowrow["is_cloned"] = False
         table_promo.insert(rowrow)
+
+    logger.info(f"Table {nom_table} created and datas inserted")
 
     clone_vm(nom_table)
 
@@ -456,14 +512,9 @@ def upload_csv():
 def delete_class():
     """récupère la classe et l'os et supprime les VM"""
     content = request.json
-    print(content)
-    response_del = delete_vm(f"classe-{content['classe']}-os-{content['os']}".lower())
-
-    if response_del == 500:
-        print("On envoie 500")
-        return "", 500
-    
+    delete_vm(f"classe-{content['classe']}-os-{content['os']}".lower())
     db.drop_table(f"classe-{content['classe']}-os-{content['os']}".lower())
+    logger.info(f"Table classe-{content['classe']}-os-{content['os']} dropped")
     return "", 201
 
 
@@ -471,4 +522,5 @@ if __name__ == "__main__":
     url_proxmox = "https://172.16.1.92:8006"
     username = "projet1@pve"
     password = "EsFJZ2409GYX@ip"
+    logger = setup_logger()
     app.run(debug=True, port=8080)
