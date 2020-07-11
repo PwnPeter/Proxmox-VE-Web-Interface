@@ -10,15 +10,9 @@
             <div class="select ">
                 <select class="select-class">
                     <option value="default">Colonne "classe" dans le .csv</option>
-                    <option value="1">ING1</option>
-                    <option value="2">ING2</option>
-                    <option value="3">IR3</option>
-                    <option value="4">IR4</option>
-                    <option value="5">IR5</option>
-                    <option value="6">Bachelor</option>
-                    <option value="7">M1</option>
-                    <option value="8">M2</option>
-                    <option value="9">Autre</option>
+                    {% for classe_k, classe_v in liste_classes.items() %}
+                        <option value="{{classe_k}}">{{classe_v}}</option>
+                    {%endfor%}
                 </select>
             </div>
             <div class="icon is-medium is-left">
@@ -33,15 +27,9 @@
             <div class="control has-icons-left">
                 <div class="select">
                     <select class="select-os">
-                        <option value="1">CentOS</option>
-                        <option value="2">Debian</option>
-                        <option value="3">Autre Linux</option>
-                        <option value="4">Windows XP</option>
-                        <option value="5">Windows 7</option>
-                        <option value="6">Windows 10</option>
-                        <option value="7">Windows Server 2016</option>
-                        <option value="8">Windows Server 2019</option>
-                        <option value="9">Autre Windows</option>
+                        {% for os_k, os_v in liste_os.items() %}
+                        <option value="{{os_k}}">{{os_v}}</option>
+                        {%endfor%}
                     </select>
                 </div>
                 <div class="icon is-medium is-left">

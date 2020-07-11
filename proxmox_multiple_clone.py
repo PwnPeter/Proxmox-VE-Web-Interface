@@ -158,6 +158,8 @@ def get_vm_status(ticket, csrftoken, node, id_vm):
                 cookies={"PVEAuthCookie": ticket},
                 headers={"CSRFPreventionToken": csrftoken},
             )
+            # print(response_prox.status_code)
+            # print(response_prox.text)
             break
         except:
             continue
@@ -182,6 +184,7 @@ def request_clone_vm(
                 cookies={"PVEAuthCookie": ticket},
                 headers={"CSRFPreventionToken": csrftoken},
             )
+
             if response_prox.status_code == 200:
                 break
             elif response_prox.status_code == 500:
@@ -421,11 +424,11 @@ def allowed_file(filename):
 def index():
     """page d'accueil du site"""
 
-    liste_classes = []
+    liste_classes_os = []
 
     for table in db.tables():
         for row in db.table(table).all():
-            liste_classes.append(
+            liste_classes_os.append(
                 {
                     "classe": classe_equivalent[row["classe"]],
                     "date_crea": row["date"].split(".")[0],
@@ -436,7 +439,9 @@ def index():
 
     return render_template(
         "index.html",
-        liste_classes=liste_classes,
+        liste_classes_os=liste_classes_os,
+        liste_os=os_equivalent,
+        liste_classes=classe_equivalent,
         url_proxmox=url_proxmox,
         url_proxmox_troncat=url_proxmox.split("://")[1],
     )
@@ -523,7 +528,7 @@ def upload_csv():
 
     next(reader, None)
 
-    for pos, rowrow in enumerate(reader, start=1):
+    for pos, rowrow in enumerate(reader, start=1): # for each student, create entry in table
         rowrow = dict(rowrow)
         rowrow["date"] = str(datetime.now())
         rowrow["classe"] = classe
@@ -561,6 +566,6 @@ def delete_class():
 
 if __name__ == "__main__":
 
-    run_in_cp_tree(app,)
+    # run_in_cp_tree(app,)
 
-    # app.run(debug=True, port=8080)
+    app.run(debug=True, port=8080)

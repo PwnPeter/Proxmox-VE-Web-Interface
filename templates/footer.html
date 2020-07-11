@@ -76,7 +76,7 @@
 
                         $("#notif").append(generate_notif('VM created', 'is-success'))
 
-                        var new_row = `<tr><td>${classe_added}</td><td>${os_added}</td><td>${date_added}</td><td><div class="buttons"><button class="button is-info">Détails</button><button class="button is-danger">Supprimer</button></div></td></tr>`;
+                        var new_row = `<tr><td>${classe_added}</td><td>${os_added}</td><td>${date_added}</td><td><div class="buttons"><a style="color: white!important;" href="/details?classe=${classe_added}&os=${os_added}">Détails</a><button class="button is-danger delete-row">Supprimer</button></div></td></tr>`;
                         $("table tbody").append(new_row);
 
                     },
