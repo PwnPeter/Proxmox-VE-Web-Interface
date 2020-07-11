@@ -79,7 +79,7 @@ template_equivalent = {
     "WinSRV2016": 104,
 }
 
-classe_equivalent = {
+class_equivalent = {
     "1": "ING1",
     "2": "ING2",
     "3": "IR3",
@@ -232,7 +232,7 @@ def clone_vm(nom_table):
 
     classe = [
         classe_name
-        for classe_id, classe_name in classe_equivalent.items()
+        for classe_id, classe_name in class_equivalent.items()
         if classe_name.lower() == nom_table.split("-")[1].lower()
     ][0].lower()
 
@@ -410,7 +410,7 @@ def index():
         for row in db.table(table).all():
             liste_classes_os.append(
                 {
-                    "classe": classe_equivalent[row["classe"]],
+                    "classe": class_equivalent[row["classe"]],
                     "date_crea": row["date"].split(".")[0],
                     "os": os_equivalent[row["os"]],
                 }
@@ -421,7 +421,7 @@ def index():
         "index.html",
         liste_classes_os=liste_classes_os,
         liste_os=os_equivalent,
-        liste_classes=classe_equivalent,
+        liste_classes=class_equivalent,
         url_proxmox=url_proxmox,
         url_proxmox_troncat=url_proxmox.split("://")[1],
     )
@@ -492,7 +492,7 @@ def upload_csv():
     else:
         classe = str(request.form["class"])
 
-    nom_table = f"classe-{classe_equivalent[classe]}-os-{os_equivalent[os]}".lower()
+    nom_table = f"classe-{class_equivalent[classe]}-os-{os_equivalent[os]}".lower()
 
     if nom_table in db.tables():
         return Response(status=409)
@@ -525,7 +525,7 @@ def upload_csv():
     return (
         jsonify(
             {
-                "classe": classe_equivalent[classe],
+                "classe": class_equivalent[classe],
                 "date_crea": rowrow["date"].split(".")[0],
                 "os": os_equivalent[os],
             }
