@@ -134,7 +134,7 @@ def get_vm_status(ticket, csrftoken, node, id_vm):
 def request_clone_vm(
     ticket, csrftoken, student, vm_name, storage, nom_table, node, clone_os
 ):
-    logger.info(f"Starting the VM clone {nom_table} for {student['email']}")
+    logger.info(f"Starting the VM clone {nom_table} for {student['email']} VM: {student['id_vm']}")
     while 1:
         try:
             response_prox = r.post(
@@ -152,7 +152,7 @@ def request_clone_vm(
             if response_prox.status_code == 200:
                 break
             elif response_prox.status_code == 500:
-                logging.warning(f"{vm_name} already exsits")
+                logging.warning(f"{student['id_vm']} ({vm_name}) already exsits")
                 break
             else:
                 logging.warning(
@@ -514,7 +514,7 @@ def delete_class():
     content = request.json
     delete_vm(f"classe-{content['classe']}-os-{content['os']}".lower())
     db.drop_table(f"classe-{content['classe']}-os-{content['os']}".lower())
-    logger.info(f"Table classe-{content['classe']}-os-{content['os']} dropped")
+    logger.info(f"Table classe-{content['classe'].lower()}-os-{content['os'].lower()} dropped")
     return "", 201
 
 
