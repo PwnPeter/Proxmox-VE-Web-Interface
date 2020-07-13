@@ -56,7 +56,7 @@ logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 # logger.addHandler(http_handler)
 
-nodes_list = ["proxmox1"]  # , "proxmox2"]
+nodes_list = ["proxmox1", "proxmox2"]
 # remettre proxmox2 quand les templates auront été créé dessus
 
 role = "Etudiant"
@@ -75,7 +75,7 @@ os_equivalent = {
 }
 
 template_equivalent = {
-    "CentOS": 100,
+    "CentOS": 105,
     "WinSRV2016": 104,
 }
 
@@ -115,17 +115,30 @@ def login_proxmox():
 def get_storage(ticket, csrftoken, classe):
     """retourne ne storage associé à la classe (permet d'éviter les problèmes de case"""
     storage_list = []
-    for node in nodes_list:
-        response_prox = r.get(
-            url_proxmox + f"/api2/json/nodes/{node}/storage",
-            verify=False,
-            cookies={"PVEAuthCookie": ticket},
-            headers={"CSRFPreventionToken": csrftoken},
-        ).json()
-        for storage in response_prox["data"]:
-            if storage["storage"].lower() == classe.lower():
 
-                return storage["storage"]
+    while 1:
+        try:
+            for node in nodes_list:
+                response_prox = r.get(
+                    url_proxmox + f"/api2/json/nodes/{node}/storage",
+                    verify=False,
+                    cookies={"PVEAuthCookie": ticket},
+                    headers={"CSRFPreventionToken": csrftoken},
+                )
+
+                print(response_prox.status_code)
+                print(response_prox.text)
+
+
+                for storage in response_prox.json()["data"]:
+                    if storage["storage"].lower() == classe.lower():
+
+                        return storage["storage"]
+        except:
+            logger.error("Error getting storages")
+            time.sleep(randint(5,15))
+
+        
 
 
 def get_vm_status(ticket, csrftoken, node, id_vm):
@@ -138,8 +151,12 @@ def get_vm_status(ticket, csrftoken, node, id_vm):
                 cookies={"PVEAuthCookie": ticket},
                 headers={"CSRFPreventionToken": csrftoken},
             )
-            # print(response_prox.status_code)
-            # print(response_prox.text)
+            print(response_prox.status_code) # Quand on clone une VM de proxmox1 vers proxmox2 elle n'existe pas dans proxmox2 tant que lme clonage n'est pas fini, d'où l'erreur 500
+            print(response_prox.text)
+
+            if response_prox.status_code == 500:
+                time.sleep(randint(5,15))
+                continue
             break
         except:
             continue
@@ -147,19 +164,20 @@ def get_vm_status(ticket, csrftoken, node, id_vm):
 
 
 def request_clone_vm(
-    ticket, csrftoken, student, vm_name, storage, nom_table, node, clone_os):
+    ticket, csrftoken, student, vm_name, storage, nom_table, template_node, clone_os, target_node):
     """requêtes qui vont cloner les VM"""
     logger.info(f"Starting the VM clone {nom_table} for {student['email']} VM: {student['id_vm']}")
     while 1:
         try:
             response_prox = r.post(
-                url_proxmox + f"/api2/json/nodes/{node}/qemu/{clone_os}/clone",
+                url_proxmox + f"/api2/json/nodes/{template_node}/qemu/{clone_os}/clone",
                 verify=False,
                 params={
                     "newid": int(student["id_vm"]),
                     "name": vm_name,
                     "full": 1,
                     "storage": f"{storage}",
+                    "target": target_node
                 },
                 cookies={"PVEAuthCookie": ticket},
                 headers={"CSRFPreventionToken": csrftoken},
@@ -187,7 +205,8 @@ def request_clone_vm(
 
         is_cloned = ""
         while is_cloned != vm_name:
-            is_cloned = get_vm_status(ticket, csrftoken, node, student["id_vm"])
+            is_cloned = get_vm_status(ticket, csrftoken, target_node, student["id_vm"])
+
             is_cloned = is_cloned.json()["data"]["name"]
             time.sleep(randint(5, 15))
 
@@ -215,6 +234,7 @@ def request_clone_vm(
                     f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} right set"
                 )
                 table_db.update({"is_cloned": True}, where("id_vm") == student["id_vm"])
+                table_db.update({"node": target_node}, where("id_vm") == student["id_vm"])
                 break
 
             time.sleep(randint(5, 15))
@@ -222,13 +242,15 @@ def request_clone_vm(
 
         if response_prox.status_code != 200:
             logger.error(
-                f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} right not set"
+                f"VM: {student['id_vm']} OS: {clone_os}, User: {student['email']} right not set\n {response_prox.status_code}\n{response_prox.text}"
             )
 
 
 def clone_vm(nom_table):
     """initialisation du clone des VM à partir du template associé"""
     ticket, csrftoken = login_proxmox()
+
+    template_node = nodes_list[0]
 
     classe = [
         classe_name
@@ -253,9 +275,10 @@ def clone_vm(nom_table):
     for pos, student in enumerate(db.table(nom_table).all()):
 
         if int(student["id_vm"]) % 2 == 0 and len(nodes_list) > 1:
-            node = nodes_list[1]  # si pair ça go sur proxmox2
+            target_node = nodes_list[1]  # si pair ça go sur proxmox2
+            
         else:
-            node = nodes_list[0]  # sinon proxmox1
+            target_node = nodes_list[0]  # sinon proxmox1
 
         # print(f"Node {node}")
 
@@ -271,8 +294,9 @@ def clone_vm(nom_table):
                 vm_name,
                 storage,
                 nom_table,
-                node,
+                template_node,
                 clone_os,
+                target_node
             ],
         )
         threads.append(t)
@@ -284,7 +308,7 @@ def clone_vm(nom_table):
     logger.info("Threads clone finished")
 
 
-def request_delete_vm(ticket, csrftoken, node, student):
+def request_delete_vm(ticket, csrftoken, target_node, student):
     """requêtes qui vont stopper et supprimer les threads"""
     logger.info(f"Starting VM removal {student['id_vm']} of {student['email']}")
 
@@ -292,7 +316,7 @@ def request_delete_vm(ticket, csrftoken, node, student):
         try:
             response_prox = r.post(
                 url_proxmox
-                + f"/api2/json/nodes/{node}/qemu/{student['id_vm']}/status/stop",
+                + f"/api2/json/nodes/{target_node}/qemu/{student['id_vm']}/status/stop",
                 verify=False,
                 params={"timeout": 5},
                 cookies={"PVEAuthCookie": ticket},
@@ -321,7 +345,7 @@ def request_delete_vm(ticket, csrftoken, node, student):
         is_stopped = ""
 
         while is_stopped != "stopped":
-            is_stopped = get_vm_status(ticket, csrftoken, node, student["id_vm"])
+            is_stopped = get_vm_status(ticket, csrftoken, target_node, student["id_vm"])
             is_stopped = is_stopped.json()["data"]["qmpstatus"]
             time.sleep(randint(5, 15))
 
@@ -331,7 +355,7 @@ def request_delete_vm(ticket, csrftoken, node, student):
         while i < 3:
 
             response_prox = r.delete(
-                url_proxmox + f"/api2/json/nodes/{node}/qemu/{student['id_vm']}",
+                url_proxmox + f"/api2/json/nodes/{target_node}/qemu/{student['id_vm']}",
                 verify=False,
                 params={},
                 cookies={"PVEAuthCookie": ticket},
@@ -361,9 +385,9 @@ def delete_vm(nom_table):
 
     for pos, student in enumerate(db.table(nom_table).all()):
         if int(student["id_vm"]) % 2 == 0 and len(nodes_list) > 1:
-            node = nodes_list[1]  # si pair ça go sur proxmox2
+            target_node = nodes_list[1]  # si pair ça go sur proxmox2
         else:
-            node = nodes_list[0]  # sinon proxmox1
+            target_node = nodes_list[0]  # sinon proxmox1
 
         # print(f"Node {node}")
 
@@ -378,7 +402,7 @@ def delete_vm(nom_table):
         t = Thread(
             name=f"Delete {vm_name}",
             target=request_delete_vm,
-            args=[ticket, csrftoken, node, student],
+            args=[ticket, csrftoken, target_node, student],
         )
         threads.append(t)
         t.start()
@@ -515,6 +539,7 @@ def upload_csv():
         rowrow["os"] = os
         rowrow["id_vm"] = f"{classe}{os}{pos:03d}"
         rowrow["is_cloned"] = False
+        rowrow["node"] = ""
 
         table_promo.insert(rowrow)
 
@@ -546,4 +571,4 @@ def delete_class():
 
 if __name__ == "__main__":
 
-    app.run(debug=False, port=8080)
+    app.run(debug=True, port=8080)
